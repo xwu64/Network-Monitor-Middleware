@@ -1,0 +1,9 @@
+# Format: id ipAddress endDevice port1 nextHopIpAddress1 port2 nextHopIpAddress2 ...
+
+# Switches
+1 10.0.0.1 0 1 10.0.0.2 2 10.0.0.3 # <-> h32-eth0 h33-eth0 s2-eth1 s3-eth1
+
+# Hosts
+2 10.0.0.2 1 0 10.0.0.1
+3 10.0.0.3 1 0 10.0.0.1
+

@@ -19,11 +19,11 @@ class MyTopo( Topo ):
         Topo.__init__( self )
 
         # Add hosts and switches
-        leftHost = self.addHost( '2',ip='127.0.0.2' )
-        rightHost = self.addHost( '3',ip='127.0.0.3' )
-        rightSwitch = self.addSwitch( '1')
-    
-       
+        leftHost = self.addHost( 'h2',ip='10.0.0.2' )
+        rightHost = self.addHost( 'h3',ip='10.0.0.3' )
+        rightSwitch = self.addSwitch( 's1')
+
+
 
         # Add links
         self.addLink( leftHost,  rightSwitch)

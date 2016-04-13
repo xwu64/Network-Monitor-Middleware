@@ -23,13 +23,14 @@ class MyTopo( Topo ):
         maliciousHost = self.addHost( 'h1',ip='10.0.0.2' )
         leftHost = self.addHost( 'h2',ip='10.0.0.3' )
         rightHost = self.addHost( 'h3',ip='10.0.0.4' )
-        rightSwitch = self.addSwitch( 's1')
+        switch = self.addSwitch( 's1')
 
 
 
         # Add links
-        self.addLink( leftHost,  rightSwitch)
-        self.addLink( rightSwitch, rightHost )
+        self.addLink( leftHost,  switch)
+        self.addLink( rightHost,  switch)
+        self.addLink( maliciousHost,  switch)
 
 
 topos = { 'mytopo': ( lambda: MyTopo() ) }

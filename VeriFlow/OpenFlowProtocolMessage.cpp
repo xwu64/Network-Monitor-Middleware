@@ -18,6 +18,8 @@
 #include "Network.h"
 #include "VeriFlow.h"
 
+extern int PacketInNum;
+
 void OpenFlowProtocolMessage::process(const char* data, ProxyConnectionInfo& info, FILE* fp)
 {
 	const ofp_header* header = (const ofp_header*)data;
@@ -26,11 +28,13 @@ void OpenFlowProtocolMessage::process(const char* data, ProxyConnectionInfo& inf
 	case OFPT_HELLO:
 		// OpenFlowProtocolMessage::processHello(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_HELLO\n");
 		break;
 
 	case OFPT_ERROR:
 		// OpenFlowProtocolMessage::processError(data, info, fp);
 		// fprintf(fp, "\n");
+        fprintf(stdout, "OFPT_ERROR\n");
 		break;
 
 	case OFPT_ECHO_REQUEST:
@@ -46,91 +50,111 @@ void OpenFlowProtocolMessage::process(const char* data, ProxyConnectionInfo& inf
 	case OFPT_VENDOR:
 		// OpenFlowProtocolMessage::processVendor(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_VENDOR\n");
 		break;
 
 	case OFPT_FEATURES_REQUEST:
 		// OpenFlowProtocolMessage::processFeaturesRequest(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_FEATURES_REQUEST\n");
 		break;
 
 	case OFPT_FEATURES_REPLY:
 		OpenFlowProtocolMessage::processFeaturesReply(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_FEATURES_REPLY\n");
 		break;
 
 	case OFPT_GET_CONFIG_REQUEST:
 		// OpenFlowProtocolMessage::processGetConfigRequest(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_GET_CONFIG_REQUEST\n");
 		break;
 
 	case OFPT_GET_CONFIG_REPLY:
 		// OpenFlowProtocolMessage::processGetConfigReply(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_GET_CONFIG_REPLY\n");
 		break;
 
 	case OFPT_SET_CONFIG:
 		// OpenFlowProtocolMessage::processSetConfig(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_SET_CONFIG\n");
 		break;
 
 	case OFPT_PACKET_IN:
 		// OpenFlowProtocolMessage::processPacketIn(data, info, fp);
 		// fprintf(fp, "\n");
+/*        PacketInNum++;*/
+        /*fprintf(stdout, "OFPT_PACKET_IN, Number = %d\n", PacketInNum);*/
 		break;
 
 	case OFPT_FLOW_REMOVED:
 		OpenFlowProtocolMessage::processFlowRemoved(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_FLOW_REMOVED\n");
 		break;
 
 	case OFPT_PORT_STATUS:
 		// OpenFlowProtocolMessage::processPortStatus(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_PORT_STATUS\n");
 		break;
 
 	case OFPT_PACKET_OUT:
 		// OpenFlowProtocolMessage::processPacketOut(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_PACKET_OUT\n");
 		break;
 
 	case OFPT_FLOW_MOD:
 		OpenFlowProtocolMessage::processFlowMod(data, info, fp);
 		// fprintf(fp, "\n");
+        // fprintf(stdout, "OFPT_FLOW_MOD\n");
 		break;
 
 	case OFPT_PORT_MOD:
 		// OpenFlowProtocolMessage::processPortMod(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_PORT_MOD\n");
 		break;
 
 	case OFPT_STATS_REQUEST:
 		// OpenFlowProtocolMessage::processStatsRequest(data, info, fp);
 		// fprintf(fp, "\n");
+        // fprintf(stdout, "OFPT_STATS_REQUEST\n");
 		break;
 
 	case OFPT_STATS_REPLY:
-		// OpenFlowProtocolMessage::processStatsReply(data, info, fp);
+		OpenFlowProtocolMessage::processStatsReply(data, info, fp);
 		// fprintf(fp, "\n");
+        // fprintf(stdout, "OFPT_STATS_REPLY\n");
+
 		break;
 
 	case OFPT_BARRIER_REQUEST:
 		// OpenFlowProtocolMessage::processBarrierRequest(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_BARRIER_REQUEST\n");
 		break;
 
 	case OFPT_BARRIER_REPLY:
-		// OpenFlowProtocolMessage::processBarrierReply(data, info, fp);
+		// OpenFlowProtoolMessage::processBarrierReply(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_BARRIER_REPLY\n");
 		break;
 
 	case OFPT_QUEUE_GET_CONFIG_REQUEST:
 		// OpenFlowProtocolMessage::processQueueGetConfigRequest(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_QUEUE_GET_CONFIG_REQUEST\n");
 		break;
 
 	case OFPT_QUEUE_GET_CONFIG_REPLY:
 		// OpenFlowProtocolMessage::processQueueGetConfigReply(data, info, fp);
 		// fprintf(fp, "\n");
+        //fprintf(stdout, "OFPT_QUEUE_GET_CONFIG_REPLY\n");
 		break;
 	}
 }
@@ -370,6 +394,10 @@ void OpenFlowProtocolMessage::processFlowMod(const char* data, ProxyConnectionIn
 {
 	const ofp_flow_mod* ofm = (const ofp_flow_mod*)data;
 
+
+	//printf("IP: %d   MAC:%d \n",ofm->match.nw_src,ofm->match.dl_src[OFP_ETH_ALEN]);
+
+
 	OpenFlowProtocolMessage::processHeader(&(ofm->header), info, fp);
 	OpenFlowProtocolMessage::processMatch(&(ofm->match), info, fp);
 
@@ -482,7 +510,14 @@ void OpenFlowProtocolMessage::processStatsRequest(const char* data, ProxyConnect
 
 void OpenFlowProtocolMessage::processStatsReply(const char* data, ProxyConnectionInfo& info, FILE* fp)
 {
-	// fprintf(fp, "[StatsReply]\n");
+		const ofp_stats_reply* osf = (const ofp_stats_reply*)data;
+		extern int netDos;
+
+		if(osf->type == 2)
+		{
+			if (osf->body[0] > netDos)
+				printf("detect networkDos\n");
+		}
 }
 
 void OpenFlowProtocolMessage::processBarrierRequest(const char* data, ProxyConnectionInfo& info, FILE* fp)
@@ -507,16 +542,58 @@ void OpenFlowProtocolMessage::processQueueGetConfigReply(const char* data, Proxy
 
 void OpenFlowProtocolMessage::processMatch(const ofp_match* match, ProxyConnectionInfo& info, FILE* fp)
 {
-	// fprintf(fp, "[Match] wildcards %u in_port %u dl_src %02x:%02x:%02x:%02x:%02x:%02x dl_dst %02x:%02x:%02x:%02x:%02x:%02x",
-	//		ntohl(match->wildcards), ntohs(match->in_port),
-	//		match->dl_src[0], match->dl_src[1], match->dl_src[2],
-	//		match->dl_src[3], match->dl_src[4], match->dl_src[5],
-	//		match->dl_dst[0], match->dl_dst[1], match->dl_dst[2],
-	//		match->dl_dst[3], match->dl_dst[4], match->dl_dst[5]);
+	 // fprintf(stdout, "[Match] wildcards %u in_port %u dl_src %02x:%02x:%02x:%02x:%02x:%02x dl_dst %02x:%02x:%02x:%02x:%02x:%02x\n",
+		// 	ntohl(match->wildcards), ntohs(match->in_port),
+		// 	match->dl_src[0], match->dl_src[1], match->dl_src[2],
+		// 	match->dl_src[3], match->dl_src[4], match->dl_src[5],
+		// 	match->dl_dst[0], match->dl_dst[1], match->dl_dst[2],
+		// 	match->dl_dst[3], match->dl_dst[4], match->dl_dst[5]);
 
-	// fprintf(fp, " dl_vlan %u dl_vlan_pcp %u dl_type %u nw_tos %u nw_proto %u nw_src %u nw_dst %u tp_src %u tp_dst %u\n",
-	//		ntohs(match->dl_vlan), match->dl_vlan_pcp, ntohs(match->dl_type),
-	//		match->nw_tos, match->nw_proto,
-	//		ntohl(match->nw_src), ntohl(match->nw_dst),
-	//		ntohs(match->tp_src), ntohs(match->tp_dst));
+	/* fprintf(stdout, " dl_vlan %u dl_vlan_pcp %u dl_type %u nw_tos %u nw_proto %u nw_src %u nw_dst %u tp_src %u tp_dst %u\n",
+			ntohs(match->dl_vlan), match->dl_vlan_pcp, ntohs(match->dl_type),
+			match->nw_tos, match->nw_proto,
+			ntohl(match->nw_src), ntohl(match->nw_dst),
+			ntohs(match->tp_src), ntohs(match->tp_dst));
+*/
+	 	//  fprintf(stdout, "nw_src %x nw_dst %x \n",
+			// ntohl(match->nw_src), ntohl(match->nw_dst));
+
+
+			extern check mtx[40];
+			extern int num;
+			extern int arpflag;
+
+
+			check temp;
+			int ip=0,mac=0;
+			
+
+			ip=(int)ntohl(match->nw_dst);
+			temp.ip=ip;
+
+			for(int i=0;i<6;i++)
+			{
+				ip=(int)(match->dl_dst[i])*pow(256,5-i);
+				mac=mac+ip;
+			}
+			temp.mac=mac;
+
+			// printf("ip  :  %d    mac:  %ld\n", temp.ip,temp.mac);
+			int flag=0;
+			for(int i=0;i<num;i++)
+			{
+				if(temp.ip==mtx[i].ip && temp.mac == mtx[i].mac)
+				{	
+					flag=1;
+				}
+			}
+			if(!flag && arpflag==0)
+			{
+				printf("detect arp poison\n");
+				arpflag=1;
+			}
+
+
+
+
 }

@@ -27,6 +27,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+ #include <math.h>
 #include "Rule.h"
 #include "EquivalenceClass.h"
 #include "ForwardingGraph.h"
@@ -36,6 +37,12 @@
 #include "Trie.h"
 
 using namespace std;
+
+
+struct check {
+	int ip;
+	long mac;
+};
 
 #define TEST_MODE 0
 #define PROXY_MODE 1

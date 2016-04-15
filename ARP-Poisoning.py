@@ -20,9 +20,9 @@ class MyTopo( Topo ):
         Topo.__init__( self )
 
         # Add hosts and switches
-        maliciousHost = self.addHost( 'h1',ip='10.0.0.2' )
-        leftHost = self.addHost( 'h2',ip='10.0.0.3' )
-        rightHost = self.addHost( 'h3',ip='10.0.0.4' )
+        maliciousHost = self.addHost( 'h1',ip='10.0.0.2' , mac = '00:00:00:00:00:02')
+        leftHost = self.addHost( 'h2',ip='10.0.0.3' , mac = '00:00:00:00:00:03')
+        rightHost = self.addHost( 'h3',ip='10.0.0.4' , mac = '00:00:00:00:00:04')
         switch = self.addSwitch( 's1')
 
 

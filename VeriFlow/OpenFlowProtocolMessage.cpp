@@ -22,6 +22,9 @@
 
 extern int PacketInNum;
 
+int packet_in=0;
+int flow_mod=0;
+
 void OpenFlowProtocolMessage::process(const char* data, ProxyConnectionInfo& info, FILE* fp)
 {
 	const ofp_header* header = (const ofp_header*)data;
@@ -89,7 +92,12 @@ void OpenFlowProtocolMessage::process(const char* data, ProxyConnectionInfo& inf
 		// OpenFlowProtocolMessage::processPacketIn(data, info, fp);
 		// fprintf(fp, "\n");
 /*        PacketInNum++;*/
+
+
         /*fprintf(stdout, "OFPT_PACKET_IN, Number = %d\n", PacketInNum);*/
+
+        packet_in+=1;
+        //fprintf(stdout, "**************************packet_in is : %d\n", packet_in);
 		break;
 
 	case OFPT_FLOW_REMOVED:
@@ -112,8 +120,13 @@ void OpenFlowProtocolMessage::process(const char* data, ProxyConnectionInfo& inf
 
 	case OFPT_FLOW_MOD:
 		OpenFlowProtocolMessage::processFlowMod(data, info, fp);
+
+
 		// fprintf(fp, "\n");
         // fprintf(stdout, "OFPT_FLOW_MOD\n");
+
+        flow_mod+=1;
+        //fprintf(stdout, "####################### flow_mod is :%d\n", flow_mod);
 		break;
 
 	case OFPT_PORT_MOD:

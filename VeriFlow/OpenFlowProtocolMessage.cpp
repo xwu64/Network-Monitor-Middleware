@@ -604,12 +604,10 @@ void OpenFlowProtocolMessage::processMatch(const ofp_match* match, ProxyConnecti
 			}
 			if(!flag && arpflag==0)
 			{
-				struct tm* info;
 				struct timeval now;
-				
+
 				gettimeofday(&now, NULL);
-				info=localtime(&(now.tv_sec));
-				printf("%sms:%ld", asctime(info),now.tv_usec);
+				printf("%ld.%ld\n", now.tv_sec,now.tv_usec);
 				printf("detect arp poison\n");
 				arpflag=1;
 			}

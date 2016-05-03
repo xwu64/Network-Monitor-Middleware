@@ -13,6 +13,7 @@
  * All rights reserved.
  */
 
+#include <time.h>
 #include "OpenFlowProtocolMessage.h"
 #include "openflow.h"
 #include "Network.h"
@@ -589,6 +590,12 @@ void OpenFlowProtocolMessage::processMatch(const ofp_match* match, ProxyConnecti
 			}
 			if(!flag && arpflag==0)
 			{
+				time_t t;
+				struct tm* info;
+
+				time(&t);
+				info=localtime(&t);
+				printf("%s", asctime(info));
 				printf("detect arp poison\n");
 				arpflag=1;
 			}

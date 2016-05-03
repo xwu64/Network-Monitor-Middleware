@@ -43,7 +43,22 @@
 #include "Trie.h"
 #include "Test.h"
 
+
+ #include <pthread.h>
+
 using namespace std;
+
+#define Num_thread 1   // thread
+
+
+//*************************************
+extern int packet_in;
+extern int flow_mod;
+
+int number_of_packet_in;
+int number_of_flow_mod;
+
+//*************************************
 
 static int tcpServerSocket;
 
@@ -70,8 +85,99 @@ int mode = TEST_MODE;
 
 int PacketInNum(0);
 
+//***********************************************
+void* count_packet(void *args)
+{
+	//usleep (800000);
+	//fprintf(stdout, "the number of packet in is :%d\n", packet_in);
+
+	while(1)
+	{
+		usleep(1000000);
+		if (packet_in >= (number_of_packet_in)/(147*8))
+		{
+			fprintf(stdout, "Alarm,Controller Dos.\n");
+		}
+
+		packet_in=0;
+	}
+
+	
+	pthread_exit(0);
+}
+
+
+
+void* count_flow(void *args)
+{
+	//usleep (800000);
+	
+
+	while(1)
+	{
+
+		//fprintf(stdout, "the number of flow mod: %d\n",flow_mod);
+
+		usleep(1000000);
+
+		if (flow_mod >= (number_of_flow_mod)/(146*8))
+		{
+			fprintf(stdout, "Alarm, TCAM Exhaustion. \n");
+		}
+
+		flow_mod=0;
+	}
+
+	
+	pthread_exit(0);
+}
+
+
+//************************************
+
+
+
 int main(int argc, char** argv)
 {
+
+
+//***************************************
+	pthread_t tid[Num_thread];
+	int indexes[Num_thread];
+
+
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_JOINABLE);
+
+	string line, line1;
+
+	ifstream myfile("packet_in.txt");
+	ifstream myfile1("flow_mod.txt");
+
+	if (myfile.is_open())
+	{
+		if(getline(myfile,line)){
+			number_of_packet_in=atoi(line.c_str());
+		}
+		else{
+			fprintf(stdout, "invaild read file packet_in.txt\n");
+		}
+
+
+		if (getline(myfile1,line1)){
+			number_of_flow_mod=atoi(line1.c_str());
+		}
+		else{
+			fprintf(stdout, "invaild read file flow_mod.txt\n");
+		}
+
+		myfile.close();
+		myfile1.close();
+
+	}
+
+	
 
 
 
@@ -166,7 +272,20 @@ int main(int argc, char** argv)
 	createMutex(&veriflowMutex);
 
 	unsigned int i = 0;
+	int ret_count_packet = pthread_create(&tid[0],&attr,count_packet,(void*)(indexes[0]));
 
+	if(ret_count_packet!=0)
+	 {			
+	 	fprintf(stdout, "python_create error: error_code=%d\n", ret_count_packet);
+	 }
+
+
+	 int ret_count_flow  = pthread_create(&tid[1],&attr,count_flow,(void*)(indexes[1]));	
+
+	 if (ret_count_flow !=0){
+		fprintf(stdout, "python_create error: error_code=%d\n", ret_count_flow );
+	}
+	
 	while(1)
 	{
 		struct sockaddr_in clientAddress;
@@ -189,7 +308,15 @@ int main(int argc, char** argv)
 		info.veriflowMutex = &veriflowMutex;
 
 		handleVeriFlowConnection(info);
+
+		//************************************************************
+
+		
 	}
+
+	pthread_attr_destroy(&attr);
+
+	    //***************************************************
 
 	return EXIT_SUCCESS;
 }
